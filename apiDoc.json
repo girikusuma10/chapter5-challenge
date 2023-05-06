@@ -1,0 +1,617 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "binar challenge 5",
+		"version": "1.0.0",
+		"description": "API documentation for binar challenge 5",
+		"contact": {
+			"name": "Giri Kusuma"
+		}
+	},
+	"servers": [
+		{
+			"url": "http://localhost:3000"
+		}
+	],
+	"components": {
+		"responses": {
+			"badRequestResponse": {
+				"description": "response if body sent by user is error",
+				"content": {
+					"application/json": {
+						"example": {
+							"errors": [
+								"error message 1",
+								"error message 2"
+							]
+						}
+					}
+				}
+			},
+			"unauthorizedResponse": {
+				"description": "response if user is accessing protected route without token or insufficent role.",
+				"content": {
+					"application/json": {
+						"example": {
+							"message": "invalid token"
+						}
+					}
+				}
+			},
+			"internalServerErrorResponse": {
+				"description": "response if server is error",
+				"content": {
+					"application/json": {
+						"example": {
+							"error": "there is error in server"
+						}
+					}
+				}
+			}
+		},
+		"securitySchemes": {
+			"bearerAuth": {
+				"type": "http",
+				"scheme": "bearer",
+				"bearerFormat": "JWT"
+			}
+		}
+	},
+	"tags": [
+		{
+			"name": "auth"
+		},
+		{
+			"name": "public"
+		},
+		{
+			"name": "admin"
+		},
+		{
+			"name": "admin > cars"
+		},
+		{
+			"name": "admin > adminAccount"
+		}
+	],
+	"paths": {
+		"/auth/login": {
+			"post": {
+				"tags": [
+					"auth"
+				],
+				"summary": "login",
+				"description": "API for login to superadmin, admin, or member account",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"email": {
+										"type": "string",
+										"example": "giri@gmail.com"
+									},
+									"password": {
+										"type": "string",
+										"example": "giri"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "success response",
+						"content": {
+							"application/json": {
+								"example": {
+									"token": "JWT_token"
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/badRequestResponse"
+					},
+					"403": {
+						"description": "forbidden response",
+						"content": {
+							"application/json": {
+								"example": {
+									"error": "wrong password"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "resource not found",
+						"content": {
+							"application/json": {
+								"example": {
+									"error": "account is not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		},
+		"/auth/register": {
+			"post": {
+				"tags": [
+					"auth"
+				],
+				"summary": "register",
+				"description": "endpoint for register as member",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string",
+										"example": "giri@gmail.com"
+									},
+									"email": {
+										"type": "string",
+										"example": "giri@gmail.com"
+									},
+									"password": {
+										"type": "string",
+										"example": "giri"
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"example": {
+										"message": "account created."
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/badRequestResponse"
+					},
+					"403": {
+						"description": "forbidden response",
+						"content": {
+							"application/json": {
+								"example": {
+									"error": "email is already used."
+								}
+							}
+						}
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		},
+		"/auth/profile": {
+			"get": {
+				"tags": [
+					"auth"
+				],
+				"summary": "profile",
+				"description": "get user information based on token",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"name": "Giri",
+									"email": "giri@gmail.com",
+									"role": "member"
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorizedResponse"
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		},
+		"/public/cars": {
+			"get": {
+				"tags": [
+					"public"
+				],
+				"summary": "getCars",
+				"description": "endpoint for get cars for public",
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"cars": [
+										{
+											"id": 1,
+											"name": "avanza",
+											"perDayRentPrice": 10000,
+											"size": "medium",
+											"createdAt": "2023-05-04T07:02:15.000Z",
+											"updatedAt": "2023-05-04T07:02:15.000Z"
+										},
+										{
+											"id": 2,
+											"name": "splash",
+											"perDayRentPrice": 9000,
+											"size": "small",
+											"createdAt": "2023-05-04T07:02:15.000Z",
+											"updatedAt": "2023-05-04T07:02:15.000Z"
+										}
+									]
+								}
+							}
+						}
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		},
+		"/admin/cars": {
+			"get": {
+				"tags": [
+					"admin > cars"
+				],
+				"summary": "getCars",
+				"description": "endpoint for admin and superadmin to get all cars data",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"cars": [
+										{
+											"id": 1,
+											"name": "avanza",
+											"perDayRentPrice": 10000,
+											"size": "medium",
+											"createdAt": "2023-05-04T07:02:15.000Z",
+											"updatedAt": "2023-05-04T07:02:15.000Z",
+											"deletedAt": null,
+											"createdBy": {
+												"name": "admin",
+												"email": "admin@gmail.com"
+											},
+											"updatedBy": {
+												"name": "admin",
+												"email": "admin@gmail.com"
+											},
+											"deletedBy": null
+										},
+										{
+											"id": 1,
+											"name": "splash",
+											"perDayRentPrice": 9000,
+											"size": "small",
+											"createdAt": "2023-05-04T07:02:15.000Z",
+											"updatedAt": "2023-05-04T07:02:15.000Z",
+											"deletedAt": "2023-05-04T07:02:15.000Z",
+											"createdBy": {
+												"name": "admin",
+												"email": "admin@gmail.com"
+											},
+											"updatedBy": {
+												"name": "admin",
+												"email": "admin@gmail.com"
+											},
+											"deletedBy": {
+												"name": "other admin",
+												"email": "other_admin@gmail.com"
+											}
+										}
+									]
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorizedResponse"
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"admin > cars"
+				],
+				"summary": "createCar",
+				"description": "endpoint for admin and superadmin to add new car",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string",
+										"example": "avanza"
+									},
+									"perDayRentPrice": {
+										"type": "number",
+										"example": 10000
+									},
+									"size": {
+										"type": "string",
+										"enum": [
+											"small",
+											"medium",
+											"large"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"message": "car created."
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/badRequestResponse"
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorizedResponse"
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		},
+		"/admin/cars/{id}": {
+			"put": {
+				"tags": [
+					"admin > cars"
+				],
+				"summary": "updateCar",
+				"description": "endpoint for admin and superadmin to update car by id",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string",
+										"example": "avanza my car"
+									},
+									"perDayRentPrice": {
+										"type": "number",
+										"example": 100000
+									},
+									"size": {
+										"type": "string",
+										"enum": [
+											"small",
+											"medium",
+											"large"
+										]
+									}
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"example": 1
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"message": "car successfully updated."
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/badRequestResponse"
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorizedResponse"
+					},
+					"404": {
+						"description": "resource is not found",
+						"content": {
+							"application/json": {
+								"example": {
+									"error": "car is not found."
+								}
+							}
+						}
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			},
+			"delete": {
+				"tags": [
+					"admin > cars"
+				],
+				"summary": "deleteCar",
+				"description": "endpoint for admin and superadmin to delete car by id",
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"schema": {
+							"type": "integer"
+						},
+						"required": true,
+						"example": 1
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"message": "car successfully updated."
+								}
+							}
+						}
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorizedResponse"
+					},
+					"404": {
+						"description": "resource is not found",
+						"content": {
+							"application/json": {
+								"example": {
+									"error": "car is not found."
+								}
+							}
+						}
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		},
+		"/admin/accounts": {
+			"post": {
+				"tags": [
+					"admin > adminAccount"
+				],
+				"summary": "createAccount",
+				"description": "endpoint for superadmin to create new admin account",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string",
+										"example": "New Admins"
+									},
+									"email": {
+										"type": "string",
+										"example": "new_admin1@gmail.com"
+									},
+									"password": {
+										"type": "string",
+										"example": "new_admin_password"
+									}
+								}
+							}
+						}
+					}
+				},
+				"security": [
+					{
+						"bearerAuth": []
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "Successful response",
+						"content": {
+							"application/json": {
+								"example": {
+									"message": "account created."
+								}
+							}
+						}
+					},
+					"400": {
+						"$ref": "#/components/responses/badRequestResponse"
+					},
+					"401": {
+						"$ref": "#/components/responses/unauthorizedResponse"
+					},
+					"403": {
+						"description": "forbidden response",
+						"content": {
+							"application/json": {
+								"example": {
+									"error": "email is already used."
+								}
+							}
+						}
+					},
+					"500": {
+						"$ref": "#/components/responses/internalServerErrorResponse"
+					}
+				}
+			}
+		}
+	}
+}
